@@ -48,7 +48,11 @@
     .logo em{font-style:normal;color:var(--accent)}
     .header-right{display:flex;align-items:center;gap:10px;flex:1;justify-content:flex-end}
     .api-key-row{display:flex;align-items:center;gap:8px}
-    .api-key-row label{font-size:0.72rem;color:var(--text-dim);white-space:nowrap;font-weight:500}
+    .api-key-row label{font-size:0.72rem;color:var(--text-dim);white-space:nowrap;font-weight:500;display:flex;align-items:center;gap:4px}
+    .lock-icon{font-size:0.75rem;opacity:0.6}
+    .api-key-tooltip-wrap{position:relative;display:inline-flex;align-items:center}
+    .api-key-tooltip-wrap:hover .api-tooltip{opacity:1;pointer-events:all}
+    .api-tooltip{position:absolute;right:0;top:calc(100% + 6px);background:var(--bg-card-2);border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:0.68rem;color:var(--text-dim);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.15s;z-index:500}
     #apiKeyInput{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.78rem;width:200px;transition:border-color 0.2s;letter-spacing:0.5px}
     #apiKeyInput:focus{border-color:var(--accent)}
     #apiKeyInput::placeholder{color:var(--text-muted)}
@@ -95,19 +99,30 @@
 
     /* Stats */
     .stat-grid{display:flex;flex-direction:column;gap:6px}
-    .stat-card{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border-light);border-radius:8px}
+    .stat-card{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border-light);border-radius:8px}
     .stat-card-label{font-size:0.7rem;color:var(--text-dim)}
-    .stat-card-value{font-size:1rem;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+    .stat-card-value{font-size:1rem;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;transition:color 0.3s}
     .stat-card-value.timer{font-family:'DM Serif Display',serif;font-size:1.15rem}
     .stat-card-sub{font-size:0.62rem;color:var(--text-muted);text-align:right}
+    .stat-hint{font-size:0.6rem;margin-top:2px;color:var(--text-muted);transition:color 0.4s}
+    .stat-hint.good{color:var(--accent)}
+    .stat-hint.warn{color:var(--medium)}
+    .stat-hint.bad{color:var(--high)}
+    @keyframes statPop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+    .stat-card-value.popping{animation:statPop 0.3s ease-out}
 
     /* Delivery metrics */
     .delivery-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
     .delivery-card{padding:8px 10px;background:var(--bg-card);border:1px solid var(--border-light);border-radius:8px;text-align:center}
-    .delivery-val{font-size:1.05rem;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+    .delivery-val{font-size:1.05rem;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;transition:color 0.3s}
     .delivery-val.warn{color:var(--medium)}
     .delivery-val.good{color:var(--accent)}
+    .delivery-val.wpm-main{font-size:1.2rem}
     .delivery-label{font-size:0.6rem;color:var(--text-muted);margin-top:2px}
+    .wpm-trend{font-size:0.7rem;margin-left:3px;display:inline-block;transition:all 0.3s}
+    .wpm-trend.up{color:var(--medium)}
+    .wpm-trend.down{color:#7eb8f5}
+    .wpm-trend.steady{color:var(--text-muted)}
 
     /* Filler breakdown */
     .filler-list{display:flex;flex-direction:column;gap:4px}
@@ -127,24 +142,45 @@
     .toggle input:checked + .toggle-track::after{transform:translateX(16px)}
 
     /* ── CENTER PANEL ── */
-    .center-panel{flex:1;display:flex;flex-direction:column;align-items:center;padding:16px 16px 14px;gap:10px;overflow:hidden;min-width:0}
+    .center-panel{flex:1;display:flex;flex-direction:column;align-items:center;padding:12px 16px 12px;gap:8px;overflow:hidden;min-width:0}
 
     /* Mic */
     .mic-wrapper{position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .mic-ring{position:absolute;width:82px;height:82px;border-radius:50%;border:1.5px solid var(--accent);opacity:0;pointer-events:none}
+    .mic-ring{position:absolute;width:96px;height:96px;border-radius:50%;border:1.5px solid var(--accent);opacity:0;pointer-events:none}
     @keyframes ringExpand{0%{transform:scale(1);opacity:0.55}100%{transform:scale(2.4);opacity:0}}
     body.is-recording .mic-ring:nth-child(1){animation:ringExpand 2.2s ease-out infinite 0s}
     body.is-recording .mic-ring:nth-child(2){animation:ringExpand 2.2s ease-out infinite 0.7s}
     body.is-recording .mic-ring:nth-child(3){animation:ringExpand 2.2s ease-out infinite 1.4s}
-    .mic-btn{position:relative;z-index:1;width:76px;height:76px;border-radius:50%;background:var(--bg-card);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all 0.28s cubic-bezier(0.16,1,0.3,1)}
+    .mic-btn{position:relative;z-index:1;width:88px;height:88px;border-radius:50%;background:var(--bg-card);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all 0.28s cubic-bezier(0.16,1,0.3,1)}
     .mic-btn:hover{border-color:var(--accent);background:var(--accent-dim)}
+    .mic-btn:active{transform:scale(0.90)!important}
+    .mic-btn.idle-glow{box-shadow:0 0 0 6px rgba(184,245,119,0.06),0 0 22px rgba(184,245,119,0.08)}
     .mic-btn.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 6px var(--accent-glow)}
-    .mic-btn svg{width:26px;height:26px;transition:all 0.25s}
+    @keyframes micPressOut{0%{transform:scale(0.90)}100%{transform:scale(1)}}
+    .mic-btn svg{width:28px;height:28px;transition:all 0.25s}
     .mic-btn .mic-icon{fill:var(--text-dim);transition:fill 0.25s}
     .mic-btn:hover .mic-icon{fill:var(--accent)}
     .mic-btn.active .mic-icon{fill:#0d0f0e}
     .mic-label{font-size:0.68rem;color:var(--text-muted);text-align:center;margin-top:2px}
     body.is-recording .mic-label{color:var(--accent)}
+
+    /* Mode hint */
+    .mode-hint-text{font-size:0.71rem;color:var(--text-muted);text-align:center;max-width:240px;line-height:1.45;font-style:italic;padding:0 8px;min-height:1.2em;transition:color 0.3s}
+    body.is-recording .mode-hint-text{color:var(--text-dim)}
+
+    /* Flow indicator */
+    .flow-bar-wrap{width:100%;max-width:380px;flex-shrink:0}
+    .flow-bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .flow-bar-label{font-size:0.6rem;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted)}
+    .flow-bar-status{font-size:0.65rem;color:var(--text-muted);transition:color 0.4s}
+    .flow-bar-status.good{color:var(--accent)}
+    .flow-bar-status.ok{color:var(--low)}
+    .flow-bar-status.poor{color:var(--high)}
+    .flow-bar-track{width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden}
+    .flow-bar-fill{height:100%;width:0%;border-radius:4px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1),background 0.8s ease}
+    .flow-bar-fill.good{background:var(--accent)}
+    .flow-bar-fill.ok{background:var(--low)}
+    .flow-bar-fill.poor{background:var(--high)}
 
     /* Status bar */
     .rec-status-bar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:9px;flex-shrink:0;gap:10px;min-height:34px}
@@ -176,7 +212,7 @@
     @keyframes blinkDot{0%,100%{opacity:1}50%{opacity:0.15}}
 
     /* Event log */
-    .event-log{width:100%;background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:0.67rem;color:var(--text-dim);display:flex;flex-direction:column;gap:1px;flex-shrink:0;max-height:58px;overflow-y:auto}
+    .event-log{width:100%;background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:0.67rem;color:var(--text-dim);display:flex;flex-direction:column;gap:1px;flex-shrink:0;max-height:50px;overflow-y:auto}
     .event-log::-webkit-scrollbar{display:none}
     .ev-line{display:flex;gap:7px;line-height:1.4;animation:evFade 0.2s ease-out}
     @keyframes evFade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
@@ -187,21 +223,28 @@
     .ev-text.info{color:var(--accent)}
 
     /* Transcript */
-    .transcript-box{flex:1;width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;overflow-y:auto;font-size:0.93rem;line-height:1.8;color:var(--text);scroll-behavior:smooth;min-height:0}
+    .transcript-box{flex:1;width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;overflow-y:auto;font-size:0.95rem;line-height:1.85;color:var(--text);scroll-behavior:smooth;min-height:0}
     .transcript-box::-webkit-scrollbar{width:3px}
     .transcript-box::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
-    .transcript-placeholder{color:var(--text-muted);font-style:italic;font-size:0.85rem}
+    /* Empty state */
+    .transcript-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:20px}
+    .empty-heading{font-size:0.85rem;color:var(--text-muted);font-style:italic;text-align:center}
+    .starter-prompts{display:flex;flex-direction:column;gap:6px;width:100%;max-width:320px}
+    .starter-prompt{padding:8px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:9px;font-size:0.78rem;color:var(--text-dim);cursor:pointer;text-align:left;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+    .starter-prompt:hover{border-color:rgba(184,245,119,0.25);color:var(--text);background:var(--accent-dim)}
+    .starter-prompt-label{font-size:0.58rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;text-align:center}
     .speak-now-prompt{display:inline-flex;align-items:center;gap:7px;color:var(--text-muted);font-size:0.82rem;font-style:italic;animation:promptPulse 2s ease-in-out infinite}
     @keyframes promptPulse{0%,100%{opacity:0.4}50%{opacity:0.85}}
     .speak-now-prompt .pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:blinkDot 1s ease-in-out infinite;flex-shrink:0}
     /* Transcript word styles */
-    .t-new{color:var(--accent);animation:highlightFade 2.5s ease-out forwards}
+    .t-new{animation:highlightFade 2.5s ease-out forwards}
     @keyframes highlightFade{0%,60%{color:var(--accent)}100%{color:var(--text)}}
     .t-filler{color:var(--low);text-decoration:underline;text-decoration-style:wavy;text-underline-offset:3px;text-decoration-thickness:1.5px;cursor:default}
-    .t-filler:hover::after{content:attr(data-filler);position:absolute;background:var(--bg-card-2);border:1px solid var(--low-border);color:var(--low);font-size:0.65rem;padding:2px 6px;border-radius:4px;margin-left:4px;white-space:nowrap}
+    .t-long-sent{text-decoration:underline;text-decoration-color:rgba(240,96,96,0.4);text-decoration-style:dotted;text-underline-offset:3px;text-decoration-thickness:1.5px;cursor:default;title:'Long sentence'}
     .t-interim{color:var(--text-dim);font-style:italic}
     .t-repeated{text-decoration:underline;text-decoration-color:var(--high);text-decoration-style:dotted;text-underline-offset:3px;cursor:default}
     .t-skipped{font-size:0.65rem;color:var(--text-muted);font-style:italic;margin:0 3px}
+    .t-break{display:block;height:5px}
 
     /* ── RIGHT PANEL ── */
     .right-panel{width:290px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
@@ -211,18 +254,22 @@
     .coach-log-scroll::-webkit-scrollbar{width:3px}
     .coach-log-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
     .log-empty{color:var(--text-muted);font-size:0.78rem;font-style:italic;text-align:center;padding:24px 10px;line-height:1.6}
-    .log-entry{padding:9px 11px;border-radius:9px;border-left:3px solid;animation:entrySlide 0.3s ease-out}
+    .log-entry{padding:10px 12px;border-radius:9px;border-left:3px solid;animation:entrySlide 0.3s ease-out}
     @keyframes entrySlide{from{transform:translateX(8px);opacity:0}to{transform:translateX(0);opacity:1}}
     .log-entry.low{border-color:var(--low);background:var(--low-bg)}
-    .log-entry.medium{border-color:var(--medium);background:var(--medium-bg)}
-    .log-entry.high{border-color:var(--high);background:var(--high-bg)}
-    .log-entry-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
-    .log-issue-tag{font-size:0.62rem;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;display:flex;align-items:center;gap:3px}
+    .log-entry.medium{border-color:var(--medium);background:var(--medium-bg);animation:entrySlide 0.3s ease-out,logGlow 1.8s ease 0.3s}
+    @keyframes logGlow{0%{box-shadow:none}50%{box-shadow:0 0 14px rgba(240,145,58,0.25)}100%{box-shadow:none}}
+    .log-entry.high{border-color:var(--high);background:var(--high-bg);animation:entrySlide 0.3s ease-out,logShake 0.5s ease 0.32s}
+    @keyframes logShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+    .log-entry-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+    .log-issue-tag{font-size:0.63rem;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;display:flex;align-items:center;gap:5px}
+    .log-issue-icon{font-size:0.9rem}
     .log-entry.low .log-issue-tag{color:var(--low)}
     .log-entry.medium .log-issue-tag{color:var(--medium)}
     .log-entry.high .log-issue-tag{color:var(--high)}
     .log-ts{font-size:0.62rem;color:var(--text-muted)}
-    .log-msg{font-size:0.78rem;color:var(--text);line-height:1.4}
+    .log-msg{font-size:0.79rem;color:var(--text);line-height:1.42}
+    .log-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 5px;border-radius:20px;font-size:0.58rem;font-weight:700;background:rgba(255,255,255,0.1);color:var(--text-dim);margin-left:5px}
     .log-suppressed{font-size:0.62rem;color:var(--text-muted);text-align:center;padding:4px 0;font-style:italic}
 
     /* ── TOAST ── */
@@ -333,9 +380,12 @@
     <div class="logo">Speak<em>Sharp</em></div>
     <div class="header-right">
       <span class="api-trust" id="apiTrustLabel">Key never stored or shared</span>
-      <div class="api-key-row">
-        <label for="apiKeyInput">API Key</label>
-        <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false">
+      <div class="api-key-tooltip-wrap">
+        <div class="api-key-row">
+          <label for="apiKeyInput"><span class="lock-icon">🔒</span> API Key</label>
+          <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="api-tooltip">Used only in your browser this session. Never stored or logged anywhere.</div>
       </div>
     </div>
   </header>
@@ -392,7 +442,10 @@
         <div class="section-label">Live Stats</div>
         <div class="stat-grid">
           <div class="stat-card">
-            <span class="stat-card-label">Words spoken</span>
+            <div>
+              <div class="stat-card-label">Words spoken</div>
+              <div class="stat-hint" id="wordHint"></div>
+            </div>
             <span class="stat-card-value" id="wordCount">0</span>
           </div>
           <div class="stat-card">
@@ -403,6 +456,7 @@
             <div>
               <div class="stat-card-label">Filler words</div>
               <div class="stat-card-sub" id="fillerRateLabel">—</div>
+              <div class="stat-hint" id="fillerHint"></div>
             </div>
             <span class="stat-card-value" id="fillerCount">0</span>
           </div>
@@ -418,8 +472,9 @@
         <div class="section-label">Delivery</div>
         <div class="delivery-grid">
           <div class="delivery-card">
-            <div class="delivery-val" id="wpmDisplay">—</div>
+            <div class="delivery-val wpm-main" id="wpmDisplay">—<span class="wpm-trend steady" id="wpmTrend"></span></div>
             <div class="delivery-label">WPM</div>
+            <div class="stat-hint" id="wpmHint"></div>
           </div>
           <div class="delivery-card">
             <div class="delivery-val" id="pauseDisplay">—</div>
@@ -472,11 +527,30 @@
 
     <!-- CENTER PANEL -->
     <section class="center-panel">
+
+      <!-- Transcript first so it's visually dominant -->
+      <div class="transcript-box" id="transcriptBox">
+        <div class="transcript-empty-state" id="emptyState">
+          <p class="empty-heading">Start speaking — SpeakSharp coaches you in real time.</p>
+          <div class="starter-prompts">
+            <div class="starter-prompt-label">Try one of these to warm up</div>
+            <button class="starter-prompt" data-prompt="Introduce yourself">👋 Introduce yourself</button>
+            <button class="starter-prompt" data-prompt="Explain your current project in 60 seconds">🚀 Explain your current project in 60 seconds</button>
+            <button class="starter-prompt" data-prompt="Practice your elevator pitch">🎯 Practice your elevator pitch</button>
+          </div>
+        </div>
+        <span class="speak-now-prompt hidden" id="speakNowPrompt">
+          <span class="pulse-dot"></span>Mic is active — speak now
+        </span>
+        <span id="finalTranscriptEl"></span><span id="interimTranscriptEl" class="t-interim"></span>
+      </div>
+
+      <!-- Mic below transcript for easy reach, stays visible -->
       <div class="mic-wrapper" id="micWrapper">
         <div class="mic-ring"></div>
         <div class="mic-ring"></div>
         <div class="mic-ring"></div>
-        <button class="mic-btn" id="micBtn" title="Click to start / stop">
+        <button class="mic-btn idle-glow" id="micBtn" title="Click to start / stop">
           <svg viewBox="0 0 24 24" fill="none">
             <rect class="mic-icon" x="9" y="1" width="6" height="12" rx="3"/>
             <path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" d="M19 10v1a7 7 0 0 1-14 0v-1"/>
@@ -485,6 +559,18 @@
         </button>
       </div>
       <div class="mic-label" id="micLabel">Click to start</div>
+      <div class="mode-hint-text" id="modeHintText">Speak naturally — focus on clarity and avoiding filler words.</div>
+
+      <!-- Flow indicator -->
+      <div class="flow-bar-wrap">
+        <div class="flow-bar-header">
+          <span class="flow-bar-label">Flow Score</span>
+          <span class="flow-bar-status" id="flowStatus">—</span>
+        </div>
+        <div class="flow-bar-track">
+          <div class="flow-bar-fill" id="flowBarFill"></div>
+        </div>
+      </div>
 
       <div class="rec-status-bar">
         <div class="rec-left">
@@ -514,15 +600,6 @@
         <div class="ev-line"><span class="ev-time">--:--</span><span class="ev-text">Waiting to start…</span></div>
       </div>
 
-      <div class="transcript-box" id="transcriptBox">
-        <span class="transcript-placeholder" id="transcriptPlaceholder">
-          Press Start to begin. SpeakSharp listens in real time and coaches you as you speak.
-        </span>
-        <span class="speak-now-prompt hidden" id="speakNowPrompt">
-          <span class="pulse-dot"></span>Mic is active — speak now
-        </span>
-        <span id="finalTranscriptEl"></span><span id="interimTranscriptEl" class="t-interim"></span>
-      </div>
     </section>
 
     <!-- RIGHT PANEL -->
@@ -628,17 +705,27 @@
     sales:       'Sales pitch. Focus on clear value proposition, avoiding repetition, and staying persuasive.',
   };
 
+  const MODE_HINTS = {
+    general:     'Speak naturally — focus on clarity and avoiding filler words.',
+    interview:   'Answer in structured points. Be concise and confident.',
+    presentation:'Focus on clarity and pacing. Pause between key points.',
+    sales:       'Lead with value. Keep it tight and persuasive.',
+  };
+
   const DEBOUNCE_MS         = 3000;
   const PAUSE_TRIGGER_MS    = 2500;
   const PERIODIC_TRIGGER_MS = 45000;
   const MICRO_TRIGGER_MS    = 10000;
   const MIN_CHUNK_WORDS     = 20;
   const MAX_FULL_WORDS      = 500;
-  const COOLDOWN_MS         = 25000;   // suppress same issue for 25s
-  const DOM_RENDER_WORDS    = 450;     // max words rendered in DOM
+  const COOLDOWN_MS         = 55000;   // 55s per issue type
+  const FILLER_AUTO_COOLDOWN= 120000;  // 2min for ratio-based auto-flag (separate from Claude)
+  const MAX_ISSUE_FLAGS     = 4;       // silence an issue type after 4 flags in a session
+  const DOM_RENDER_WORDS    = 450;
   const WPM_IDEAL_LOW       = 120;
   const WPM_IDEAL_HIGH      = 180;
-  const FILLER_RATIO_THRESH = 0.05;    // 5% triggers warning
+  const FILLER_RATIO_THRESH = 0.05;
+  const LONG_SENTENCE_WORDS = 35;
 
   /* ─────────────────────────────────────────
      STATE
@@ -679,14 +766,24 @@
   let longestPause       = 0;
   let sentences          = [];
   let currentSentenceWords = 0;
+  let prevWpm            = 0;
+
+  // Flow score
+  let flowScore          = 100;
 
   // Feedback cooldown per issue
   const lastIssueTime    = {};
+  // How many times each issue was flagged this session
+  const issueFlagCount   = {};
+  // Last 5 feedback messages shown (to pass to Claude for variety)
+  const recentFeedbackHistory = [];
+  // Coach log grouped entries {issue -> last DOM el}
+  const lastLogElByIssue = {};
 
   const fillerCounts     = {};
   FILLER_WORDS.forEach(w => fillerCounts[w] = 0);
 
-  const coachLog         = [];  // {issue, message, severity, ts}
+  const coachLog         = [];
 
   // DOM render state
   let renderedWordCount  = 0;
@@ -704,6 +801,7 @@
   const retryMicBtn         = $('retryMicBtn');
   const micBtn              = $('micBtn');
   const micLabel            = $('micLabel');
+  const modeHintText        = $('modeHintText');
   const statusText          = $('statusText');
   const wordCountEl         = $('wordCount');
   const timerDisplayEl      = $('timerDisplay');
@@ -712,11 +810,13 @@
   const fillerRateLabel     = $('fillerRateLabel');
   const fillerBreakdownList = $('fillerBreakdownList');
   const wpmDisplay          = $('wpmDisplay');
+  const wpmTrend            = $('wpmTrend');
+  const wpmHint             = $('wpmHint');
   const pauseDisplay        = $('pauseDisplay');
   const longestPauseDisplay = $('longestPauseDisplay');
   const sentenceLenDisplay  = $('sentenceLenDisplay');
   const transcriptBox       = $('transcriptBox');
-  const transcriptPlaceholder=$('transcriptPlaceholder');
+  const emptyState          = $('emptyState');
   const finalTranscriptEl   = $('finalTranscriptEl');
   const interimTranscriptEl = $('interimTranscriptEl');
   const analyzingBadge      = $('analyzingBadge');
@@ -731,6 +831,8 @@
   const microAnalysisToggle = $('microAnalysisToggle');
   const sessionStartOverlay = $('sessionStartOverlay');
   const topicInput          = $('topicInput');
+  const flowBarFill         = $('flowBarFill');
+  const flowStatus          = $('flowStatus');
 
   /* ─────────────────────────────────────────
      BROWSER CHECK
@@ -753,9 +855,6 @@
     if (v.startsWith('sk-ant')) {
       apiTrustLabel.textContent = '✓ Connected — key never stored or sent anywhere except Claude';
       apiTrustLabel.className = 'api-trust connected';
-    } else if (v.length > 0) {
-      apiTrustLabel.textContent = 'Key never stored or sent anywhere except Claude';
-      apiTrustLabel.className = 'api-trust';
     } else {
       apiTrustLabel.textContent = 'Key never stored or sent anywhere except Claude';
       apiTrustLabel.className = 'api-trust';
@@ -767,9 +866,21 @@
   ───────────────────────────────────────── */
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      if (isRecording) return;
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       practiceMode = btn.dataset.mode;
+      modeHintText.textContent = MODE_HINTS[practiceMode] || MODE_HINTS.general;
+    });
+  });
+
+  /* ─────────────────────────────────────────
+     STARTER PROMPTS
+  ───────────────────────────────────────── */
+  document.querySelectorAll('.starter-prompt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const prompt = btn.dataset.prompt;
+      promptSessionStart(prompt);
     });
   });
 
@@ -796,6 +907,7 @@
       sessionElapsedSec = Math.floor((Date.now() - sessionStartMs) / 1000);
       timerDisplayEl.textContent = fmtTime(sessionElapsedSec);
       updateDeliveryMetrics();
+      updateFlowScore();
     }, 1000);
   }
   function stopTimer() { clearInterval(timerIntervalId); timerIntervalId = null; }
@@ -810,7 +922,18 @@
      WORD COUNT
   ───────────────────────────────────────── */
   function countWords(t) { return t.trim().split(/\s+/).filter(Boolean).length; }
-  function updateWordCount() { wordCountEl.textContent = countWords(fullTranscript); }
+  function updateWordCount() {
+    const wc = countWords(fullTranscript);
+    const el = wordCountEl;
+    el.textContent = wc;
+    // contextual hint
+    const wordHint = $('wordHint');
+    if (wc > 0 && isRecording) {
+      if (wc < 50) { wordHint.textContent = 'Warming up…'; wordHint.className = 'stat-hint'; }
+      else if (wc < 200) { wordHint.textContent = 'Good start'; wordHint.className = 'stat-hint good'; }
+      else { wordHint.textContent = 'On a roll'; wordHint.className = 'stat-hint good'; }
+    }
+  }
 
   /* ─────────────────────────────────────────
      DELIVERY METRICS
@@ -820,14 +943,37 @@
     const sec = Math.max(1, sessionElapsedSec);
     const wpm = Math.round((wc / sec) * 60);
 
-    // WPM colour
-    const wpmEl = wpmDisplay;
-    wpmEl.textContent = wpm || '—';
-    wpmEl.className = 'delivery-val';
+    // WPM with trend arrow
+    const wpmVal = wpm || 0;
+    const wpmNumEl = wpmDisplay; // contains the span#wpmTrend inside
+    // Extract only the number text (not the trend span)
+    wpmDisplay.childNodes[0].textContent = wpm ? wpm : '—';
+
+    wpmDisplay.className = 'delivery-val wpm-main';
     if (wpm > 0) {
-      if (wpm < WPM_IDEAL_LOW || wpm > WPM_IDEAL_HIGH) wpmEl.classList.add('warn');
-      else wpmEl.classList.add('good');
+      if (wpm < WPM_IDEAL_LOW || wpm > WPM_IDEAL_HIGH) wpmDisplay.classList.add('warn');
+      else wpmDisplay.classList.add('good');
     }
+
+    // Trend arrow
+    if (wpm > 0 && prevWpm > 0) {
+      const diff = wpm - prevWpm;
+      if (diff > 8) { wpmTrend.textContent = '↑'; wpmTrend.className = 'wpm-trend up'; }
+      else if (diff < -8) { wpmTrend.textContent = '↓'; wpmTrend.className = 'wpm-trend down'; }
+      else { wpmTrend.textContent = '→'; wpmTrend.className = 'wpm-trend steady'; }
+    } else {
+      wpmTrend.textContent = '';
+    }
+
+    // WPM hint
+    if (wpm > 0 && wc > 30) {
+      if (wpm < WPM_IDEAL_LOW) { wpmHint.textContent = 'A bit slow'; wpmHint.className = 'stat-hint warn'; }
+      else if (wpm > WPM_IDEAL_HIGH) { wpmHint.textContent = 'Too fast'; wpmHint.className = 'stat-hint bad'; }
+      else { wpmHint.textContent = 'Good pace'; wpmHint.className = 'stat-hint good'; }
+    }
+
+    // Update prev every 10s
+    if (sessionElapsedSec > 0 && sessionElapsedSec % 10 === 0) prevWpm = wpm;
 
     // Pauses
     const avgPause = pauseLengths.length
@@ -842,19 +988,69 @@
       : null;
     sentenceLenDisplay.textContent = avgSent ? `${avgSent}w` : '—';
 
-    // Filler rate
-    const wc2 = countWords(fullTranscript);
-    if (wc2 > 0) {
-      const ratio = totalFillerCount / wc2;
+    // Filler rate + hint
+    if (wc > 0) {
+      const ratio = totalFillerCount / wc;
       fillerRateLabel.textContent = `${(ratio*100).toFixed(1)}% of words`;
       fillerRateLabel.style.color = ratio > FILLER_RATIO_THRESH ? 'var(--medium)' : 'var(--text-muted)';
+      const fillerHint = $('fillerHint');
+      if (wc > 30) {
+        if (ratio > 0.10) { fillerHint.textContent = 'Too many — slow down'; fillerHint.className = 'stat-hint bad'; }
+        else if (ratio > FILLER_RATIO_THRESH) { fillerHint.textContent = 'Slightly high'; fillerHint.className = 'stat-hint warn'; }
+        else if (totalFillerCount > 0) { fillerHint.textContent = 'Under control'; fillerHint.className = 'stat-hint good'; }
+      }
     }
   }
 
   function recordPause(ms) {
-    if (ms < 400) return; // ignore tiny gaps
+    if (ms < 400) return;
     pauseLengths.push(ms);
     if (ms > longestPause) longestPause = ms;
+  }
+
+  /* ─────────────────────────────────────────
+     FLOW SCORE
+  ───────────────────────────────────────── */
+  function updateFlowScore() {
+    if (!isRecording) return;
+    const wc  = countWords(fullTranscript);
+    const sec = Math.max(1, sessionElapsedSec);
+    if (wc < 20) return;
+
+    const wpm = Math.round((wc / sec) * 60);
+    const fillerRatio = totalFillerCount / Math.max(1, wc);
+
+    // WPM score (0–40): 40 if ideal, 0 if very fast/slow
+    let wpmScore = 40;
+    if (wpm < WPM_IDEAL_LOW)  wpmScore = Math.max(0, 40 - (WPM_IDEAL_LOW - wpm) * 0.8);
+    if (wpm > WPM_IDEAL_HIGH) wpmScore = Math.max(0, 40 - (wpm - WPM_IDEAL_HIGH) * 0.8);
+
+    // Filler score (0–40): 40 if 0%, 0 if >15%
+    const fillerScore = Math.max(0, 40 - (fillerRatio / 0.15) * 40);
+
+    // Recent issues penalty (0–20): subtract 5 per issue in last 60s
+    const now = Date.now();
+    const recentIssues = Object.values(lastIssueTime).filter(t => now - t < 60000).length;
+    const issueScore = Math.max(0, 20 - recentIssues * 5);
+
+    flowScore = Math.round(wpmScore + fillerScore + issueScore);
+
+    const pct = flowScore;
+    flowBarFill.style.width = pct + '%';
+
+    if (pct >= 70) {
+      flowBarFill.className = 'flow-bar-fill good';
+      flowStatus.textContent = 'Good flow';
+      flowStatus.className = 'flow-bar-status good';
+    } else if (pct >= 40) {
+      flowBarFill.className = 'flow-bar-fill ok';
+      flowStatus.textContent = 'Needs work';
+      flowStatus.className = 'flow-bar-status ok';
+    } else {
+      flowBarFill.className = 'flow-bar-fill poor';
+      flowStatus.textContent = 'Off track';
+      flowStatus.className = 'flow-bar-status poor';
+    }
   }
 
   /* ─────────────────────────────────────────
@@ -882,22 +1078,19 @@
   /* ─────────────────────────────────────────
      SEMANTIC TRANSCRIPT HIGHLIGHTING
   ───────────────────────────────────────── */
-  function buildHighlightedSpan(text, foundFillers) {
+  function buildHighlightedSpan(text, foundFillers, isLongSentence) {
+    const wrapClass = isLongSentence ? 't-new t-long-sent' : 't-new';
+
     if (!highlightToggle.checked || foundFillers.length === 0) {
       const s = document.createElement('span');
-      s.className = 't-new';
+      s.className = wrapClass;
       s.textContent = text;
       return [s];
     }
 
-    // Split text and wrap filler words
     const spans = [];
-    let remaining = text;
     const lower = text.toLowerCase();
-
-    // Simple approach: find positions of filler words and wrap them
-    let pos = 0;
-    const marks = []; // {start, end, word}
+    const marks = [];
 
     FILLER_WORDS.forEach(word => {
       const rx = word.includes(' ')
@@ -916,12 +1109,12 @@
       if (start < cursor) return;
       if (start > cursor) {
         const s = document.createElement('span');
-        s.className = 't-new';
+        s.className = wrapClass;
         s.textContent = text.slice(cursor, start);
         spans.push(s);
       }
       const fs = document.createElement('span');
-      fs.className = 't-filler t-new';
+      fs.className = 't-filler t-new' + (isLongSentence ? ' t-long-sent' : '');
       fs.textContent = text.slice(start, end);
       fs.title = `Filler word: "${word}"`;
       spans.push(fs);
@@ -930,21 +1123,21 @@
 
     if (cursor < text.length) {
       const s = document.createElement('span');
-      s.className = 't-new';
+      s.className = wrapClass;
       s.textContent = text.slice(cursor);
       spans.push(s);
     }
 
     return spans.length ? spans : (() => {
       const s = document.createElement('span');
-      s.className = 't-new';
+      s.className = wrapClass;
       s.textContent = text;
       return [s];
     })();
   }
 
   /* ─────────────────────────────────────────
-     DOM VIRTUALIZATION — render last N words
+     DOM VIRTUALIZATION
   ───────────────────────────────────────── */
   function trimTranscriptDOM() {
     const all = finalTranscriptEl.querySelectorAll('span');
@@ -959,7 +1152,6 @@
         all[i].remove();
         if (totalWords - removed <= DOM_RENDER_WORDS) break;
       }
-      // Add a "..." marker
       const marker = document.createElement('span');
       marker.className = 't-skipped';
       marker.textContent = '[earlier speech hidden for performance] ';
@@ -1028,6 +1220,26 @@
   }
 
   /* ─────────────────────────────────────────
+     AUDIO BEEP (high severity alert)
+  ───────────────────────────────────────── */
+  function playBeep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.35);
+    } catch(_) {}
+  }
+
+  /* ─────────────────────────────────────────
      SPEECH RECOGNITION
   ───────────────────────────────────────── */
   function initRecognition() {
@@ -1064,12 +1276,13 @@
       logEvent(`✔ "${finalText.trim().slice(0,45)}${finalText.length>45?'…':''}" (${wc}w)`, 'ok');
       updateRecPill('Listening');
 
-      // Sentence tracking (ends with . ! ?)
-      if (/[.!?]/.test(finalText)) {
-        sentences.push(currentSentenceWords + wc);
+      // Sentence tracking
+      currentSentenceWords += wc;
+      const hasSentenceEnd = /[.!?]/.test(finalText);
+      const isLong = currentSentenceWords >= LONG_SENTENCE_WORDS;
+      if (hasSentenceEnd) {
+        sentences.push(currentSentenceWords);
         currentSentenceWords = 0;
-      } else {
-        currentSentenceWords += wc;
       }
 
       // Pause recording
@@ -1078,30 +1291,46 @@
         pauseStartMs = 0;
       }
 
-      transcriptPlaceholder.style.display = 'none';
+      // Hide empty state
+      if (emptyState) emptyState.style.display = 'none';
       speakNowPrompt.classList.add('hidden');
 
       // Filler detection + highlight
       const foundFillers = detectFillers(finalText);
-      const spans = buildHighlightedSpan(finalText, foundFillers);
+      const spans = buildHighlightedSpan(finalText, foundFillers, isLong);
       spans.forEach(s => finalTranscriptEl.appendChild(s));
 
-      // DOM trim
+      // Insert sentence break after a pause-triggered sentence end
+      if (hasSentenceEnd) {
+        const br = document.createElement('span');
+        br.className = 't-break';
+        finalTranscriptEl.appendChild(br);
+      }
+
       trimTranscriptDOM();
       transcriptBox.scrollTop = transcriptBox.scrollHeight;
 
       updateWordCount();
       updateDeliveryMetrics();
 
-      // Check filler ratio and auto-flag if threshold crossed
+      // Filler ratio auto-flag — uses a separate longer cooldown so it doesn't
+      // fire every few seconds alongside Claude's feedback
       const ratio = totalFillerCount / Math.max(1, countWords(fullTranscript));
-      if (ratio > FILLER_RATIO_THRESH && countWords(fullTranscript) > 30) {
+      if (ratio > FILLER_RATIO_THRESH && countWords(fullTranscript) > 50) {
         const now = Date.now();
-        if (!lastIssueTime['filler_words'] || (now - lastIssueTime['filler_words']) > COOLDOWN_MS) {
+        const flagCount = issueFlagCount['filler_words'] || 0;
+        if (flagCount < MAX_ISSUE_FLAGS &&
+            (!lastIssueTime['filler_words'] || (now - lastIssueTime['filler_words']) > FILLER_AUTO_COOLDOWN)) {
           const pct = (ratio * 100).toFixed(0);
+          const msgs = [
+            `${pct}% of your words are fillers — try pausing instead.`,
+            `Still at ${pct}% fillers — slow down and breathe before each point.`,
+            `Filler words at ${pct}% — replace them with a silent pause.`,
+          ];
+          const msg = msgs[Math.min(flagCount, msgs.length - 1)];
           displayFeedback({
             issue: 'filler_words',
-            message: `${pct}% of your words are fillers — try to slow down.`,
+            message: msg,
             severity: ratio > 0.10 ? 'high' : 'medium'
           });
         }
@@ -1145,7 +1374,7 @@
     if (e.error === 'network') {
       consecutiveErrors++;
       if (consecutiveErrors === 3) {
-        showSystemToast("Chrome's speech API needs internet access (Google's servers). Check your connection or try Chrome instead of Brave.", 'medium');
+        showSystemToast("Chrome's speech API needs internet access. Check your connection.", 'medium');
       }
       return;
     }
@@ -1166,7 +1395,7 @@
 
     logEvent('↺ Restarting…', '');
     updateRecPill('Restarting…');
-    pauseStartMs = Date.now(); // start tracking pause
+    pauseStartMs = Date.now();
 
     const delay = consecutiveErrors > 0 ? 2000 : 300;
     restartTimerId = setTimeout(() => {
@@ -1178,7 +1407,6 @@
         logEvent('● Mic active', 'info');
         updateRecPill('Listening');
         if (countWords(fullTranscript) === 0) {
-          transcriptPlaceholder.style.display = 'none';
           speakNowPrompt.classList.remove('hidden');
         }
       } catch(err) {
@@ -1225,10 +1453,13 @@
     try {
       const feedback = await callClaude(fullTranscript, chunkSnap, key, isMicro);
       if (feedback && feedback.issue && feedback.issue !== 'none') {
-        // Cooldown check
         const now = Date.now();
         const last = lastIssueTime[feedback.issue] || 0;
-        if (now - last < COOLDOWN_MS) {
+        const flagCount = issueFlagCount[feedback.issue] || 0;
+
+        if (flagCount >= MAX_ISSUE_FLAGS) {
+          logEvent(`↺ ${ISSUE_META[feedback.issue]?.label||feedback.issue} silenced (flagged ${flagCount}x)`, '');
+        } else if (now - last < COOLDOWN_MS) {
           const rem = Math.ceil((COOLDOWN_MS - (now - last)) / 1000);
           logEvent(`↺ ${ISSUE_META[feedback.issue]?.label||feedback.issue} suppressed (cooldown ${rem}s)`, '');
         } else {
@@ -1267,7 +1498,20 @@
       ? 'Focus ONLY on filler_words and rambling (micro-check).'
       : 'Check all issue types.';
 
-    const userMsg = `${topicLine}${modeLine}\n\nFull session transcript:\n"${fullSummarized}"\n\nLatest speech chunk:\n"${chunk}"\n\n${issueScope}\nReturn ONLY the JSON object.`;
+    // Tell Claude what was already said so it doesn't repeat itself
+    const historyLine = recentFeedbackHistory.length
+      ? `\nFeedback already given this session (do NOT repeat these — give fresh, specific advice):\n${recentFeedbackHistory.map(h=>`- [${h.issue}] "${h.message}"`).join('\n')}`
+      : '';
+
+    // Tell Claude which issues are maxed out so it skips them
+    const silencedIssues = Object.entries(issueFlagCount)
+      .filter(([, c]) => c >= MAX_ISSUE_FLAGS)
+      .map(([issue]) => issue);
+    const silencedLine = silencedIssues.length
+      ? `\nDo NOT flag these issue types (already flagged enough): ${silencedIssues.join(', ')}.`
+      : '';
+
+    const userMsg = `${topicLine}${modeLine}${historyLine}${silencedLine}\n\nFull session transcript:\n"${fullSummarized}"\n\nLatest speech chunk:\n"${chunk}"\n\n${issueScope}\nReturn ONLY the JSON object.`;
 
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1311,32 +1555,69 @@ Format: {"issue":"repetition"|"rambling"|"filler_words"|"off_topic"|"none","mess
     const entry = {issue:fb.issue, message:fb.message, severity:fb.severity, ts};
     coachLog.push(entry);
     lastIssueTime[fb.issue] = Date.now();
+    issueFlagCount[fb.issue] = (issueFlagCount[fb.issue] || 0) + 1;
+
+    // Keep a rolling window of last 5 feedback messages for Claude's context
+    recentFeedbackHistory.push({issue: fb.issue, message: fb.message});
+    if (recentFeedbackHistory.length > 5) recentFeedbackHistory.shift();
 
     if (fb.issue === 'repetition') { repetitionCount++; repCountEl.textContent = repetitionCount; }
 
     addLogEntry(entry);
     showToast(entry);
 
-    // Voice feedback — only if toggle on, and medium/high
+    // Beep for high severity
+    if (fb.severity === 'high') playBeep();
+
+    // Voice feedback
     if (voiceToggle.checked && (fb.severity === 'medium' || fb.severity === 'high')) {
-      setTimeout(() => speakText(fb.message), 1500); // 1.5s delay
+      setTimeout(() => speakText(fb.message), 1500);
     }
   }
 
   function addLogEntry(entry) {
     const empty = coachLogEl.querySelector('.log-empty');
     if (empty) empty.remove();
+
     const meta = ISSUE_META[entry.issue] || {label:entry.issue, icon:'💡'};
+
+    // Check if last entry for this issue exists — update count badge instead of adding new card
+    const existingEl = lastLogElByIssue[entry.issue];
+    if (existingEl && coachLogEl.contains(existingEl)) {
+      // Update or add count badge
+      let badge = existingEl.querySelector('.log-count-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'log-count-badge';
+        badge.textContent = '2';
+        const tag = existingEl.querySelector('.log-issue-tag');
+        if (tag) tag.appendChild(badge);
+      } else {
+        badge.textContent = parseInt(badge.textContent) + 1;
+      }
+      // Update message with latest
+      const msgEl = existingEl.querySelector('.log-msg');
+      if (msgEl) msgEl.textContent = entry.message;
+      // Re-trigger animation class
+      existingEl.classList.remove(entry.severity);
+      void existingEl.offsetWidth; // reflow
+      existingEl.classList.add(entry.severity);
+      coachLogEl.scrollTop = coachLogEl.scrollHeight;
+      return;
+    }
+
     const div = document.createElement('div');
     div.className = `log-entry ${entry.severity}`;
     div.innerHTML = `
       <div class="log-entry-top">
-        <span class="log-issue-tag">${meta.icon} ${meta.label}</span>
+        <span class="log-issue-tag"><span class="log-issue-icon">${meta.icon}</span> ${meta.label}</span>
         <span class="log-ts">${entry.ts}</span>
       </div>
       <div class="log-msg">${escHtml(entry.message)}</div>`;
     coachLogEl.appendChild(div);
     coachLogEl.scrollTop = coachLogEl.scrollHeight;
+
+    lastLogElByIssue[entry.issue] = div;
   }
 
   function showToast(entry) {
@@ -1393,7 +1674,7 @@ Format: {"issue":"repetition"|"rambling"|"filler_words"|"off_topic"|"none","mess
     if (micPermissionGranted) return true;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
-      stream.getTracks().forEach(t => t.stop()); // release — just needed permission
+      stream.getTracks().forEach(t => t.stop());
       micPermissionGranted = true;
       return true;
     } catch(err) {
@@ -1403,12 +1684,27 @@ Format: {"issue":"repetition"|"rambling"|"filler_words"|"off_topic"|"none","mess
   }
 
   /* ─────────────────────────────────────────
+     UI STATE
+  ───────────────────────────────────────── */
+  function setUIRecording(on) {
+    document.body.classList.toggle('is-recording', on);
+    startBtn.disabled = on;
+    stopBtn.disabled  = !on;
+    micBtn.classList.toggle('active', on);
+    micBtn.classList.toggle('idle-glow', !on);
+    statusText.textContent = on ? 'Recording' : 'Ready';
+    micLabel.textContent   = on ? 'Recording — click to stop' : 'Click to start';
+    document.querySelectorAll('.mode-btn').forEach(b => b.style.pointerEvents = on ? 'none' : '');
+  }
+
+  /* ─────────────────────────────────────────
      SESSION CONTROL
   ───────────────────────────────────────── */
-  function promptSessionStart() {
+  function promptSessionStart(prefill) {
     const key = apiKeyInput.value.trim();
     if (!key) { showSystemToast('Please enter your Claude API key first.','medium'); apiKeyInput.focus(); return; }
     sessionStartOverlay.classList.remove('hidden');
+    if (prefill) topicInput.value = prefill;
     topicInput.focus();
   }
 
@@ -1439,7 +1735,7 @@ Format: {"issue":"repetition"|"rambling"|"filler_words"|"off_topic"|"none","mess
       recognition.start();
       recognitionActive = true;
       logEvent('● Mic active — speak now', 'info');
-      transcriptPlaceholder.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'none';
       speakNowPrompt.classList.remove('hidden');
     } catch(err) {
       logEvent(`✗ ${err.message}`, 'warn');
@@ -1486,9 +1782,12 @@ Format: {"issue":"repetition"|"rambling"|"filler_words"|"off_topic"|"none","mess
     isAnalyzing = false; lastAnalysisMs = 0;
     consecutiveErrors = 0; consecutiveRestarts = 0;
     pauseLengths = []; longestPause = 0; sentences = []; currentSentenceWords = 0;
-    pauseStartMs = 0;
+    pauseStartMs = 0; prevWpm = 0; flowScore = 100;
     coachLog.length = 0;
     Object.keys(lastIssueTime).forEach(k => delete lastIssueTime[k]);
+    Object.keys(issueFlagCount).forEach(k => delete issueFlagCount[k]);
+    Object.keys(lastLogElByIssue).forEach(k => delete lastLogElByIssue[k]);
+    recentFeedbackHistory.length = 0;
     FILLER_WORDS.forEach(w => fillerCounts[w] = 0);
 
     setUIRecording(false);
@@ -1499,103 +1798,102 @@ Format: {"issue":"repetition"|"rambling"|"filler_words"|"off_topic"|"none","mess
     repCountEl.textContent     = '0';
     fillerCountEl.textContent  = '0';
     fillerRateLabel.textContent= '—';
-    wpmDisplay.textContent     = '—';
-    pauseDisplay.textContent   = '—';
+    wpmDisplay.childNodes[0].textContent = '—';
+    wpmTrend.textContent = '';
+    wpmHint.textContent = '';
+    pauseDisplay.textContent        = '—';
     longestPauseDisplay.textContent = '—';
     sentenceLenDisplay.textContent  = '—';
+    $('wordHint').textContent  = '';
+    $('fillerHint').textContent= '';
     renderFillerBreakdown();
 
-    finalTranscriptEl.innerHTML     = '';
+    // Flow bar reset
+    flowBarFill.style.width = '0%';
+    flowBarFill.className = 'flow-bar-fill';
+    flowStatus.textContent = '—';
+    flowStatus.className = 'flow-bar-status';
+
+    finalTranscriptEl.innerHTML = '';
     interimTranscriptEl.textContent = '';
-    transcriptPlaceholder.style.display = '';
     speakNowPrompt.classList.add('hidden');
-
-    coachLogEl.innerHTML = '<p class="log-empty">No feedback yet.<br>Start speaking to get live coaching.</p>';
-    toastContainer.innerHTML = '';
-    setAnalyzing(false);
+    if (emptyState) emptyState.style.display = '';
     summaryOverlay.classList.add('hidden');
-    sessionStartOverlay.classList.add('hidden');
+    coachLogEl.innerHTML = '<p class="log-empty">No feedback yet.<br>Start speaking to get live coaching.</p>';
     eventLogEl.innerHTML = '<div class="ev-line"><span class="ev-time">--:--</span><span class="ev-text">Waiting to start…</span></div>';
-  }
-
-  function setUIRecording(on) {
-    document.body.classList.toggle('is-recording', on);
-    startBtn.disabled = on;
-    stopBtn.disabled  = !on;
-    micBtn.classList.toggle('active', on);
-    statusText.textContent = on ? 'Recording…' : 'Ready';
-    micLabel.textContent   = on ? 'Click to stop' : 'Click to start';
+    setAnalyzing(false);
   }
 
   /* ─────────────────────────────────────────
-     SESSION SUMMARY
+     SUMMARY
   ───────────────────────────────────────── */
   async function showSummary() {
+    summaryOverlay.classList.remove('hidden');
+
     const wc  = countWords(fullTranscript);
     const sec = Math.max(1, sessionElapsedSec);
     const wpm = Math.round((wc / sec) * 60);
 
-    $('sumWords').textContent  = wc;
-    $('sumTime').textContent   = fmtTime(sessionElapsedSec);
-    $('sumWpm').textContent    = wpm || '—';
-    $('sumFillers').textContent= totalFillerCount;
-    $('sumReps').textContent   = repetitionCount;
-    $('sumIssues').textContent = coachLog.length;
+    $('sumWords').textContent   = wc;
+    $('sumTime').textContent    = fmtTime(sessionElapsedSec);
+    $('sumWpm').textContent     = wpm || '—';
+    $('sumFillers').textContent = totalFillerCount;
+    $('sumReps').textContent    = repetitionCount;
+    $('sumIssues').textContent  = coachLog.length;
     $('summaryTopicTag').textContent = sessionTopic ? `Topic: ${sessionTopic}` : '';
 
     const avgPause = pauseLengths.length
       ? (pauseLengths.reduce((a,b)=>a+b,0)/pauseLengths.length/1000).toFixed(1)+'s' : '—';
-    $('sumAvgPause').textContent    = avgPause;
-    $('sumLongestPause').textContent= longestPause > 0 ? (longestPause/1000).toFixed(1)+'s' : '—';
+    const longest = longestPause > 0 ? (longestPause/1000).toFixed(1)+'s' : '—';
+    $('sumAvgPause').textContent     = avgPause;
+    $('sumLongestPause').textContent = longest;
 
     // Filler grid
     $('sumFillerGrid').innerHTML = FILLER_WORDS.map(w =>
       `<div class="sum-filler-chip">
-        <span class="sum-filler-chip-word">"${w}"</span>
+        <span class="sum-filler-chip-word">${w}</span>
         <span class="sum-filler-chip-count">${fillerCounts[w]}</span>
       </div>`
     ).join('');
 
-    // Top 3 moments
-    const sevRank = {high:3, medium:2, low:1};
-    const top3 = [...coachLog].sort((a,b)=>(sevRank[b.severity]||0)-(sevRank[a.severity]||0)).slice(0,3);
-    $('momentsList').innerHTML = top3.length
-      ? top3.map(m => {
-          const meta = ISSUE_META[m.issue]||{label:m.issue,icon:'💡'};
-          return `<div class="moment-card sev-${m.severity}">
-            <div class="moment-text">${meta.icon} ${escHtml(m.message)}</div>
-            <div class="moment-meta">${meta.label} · at ${m.ts}</div>
-          </div>`;
-        }).join('')
-      : '<p style="color:var(--text-muted);font-size:0.82rem;font-style:italic">No significant issues — great session!</p>';
+    // Top moments
+    const topMoments = [...coachLog].sort((a,b) => {
+      const s = {high:3,medium:2,low:1};
+      return (s[b.severity]||0) - (s[a.severity]||0);
+    }).slice(0,3);
+    $('momentsList').innerHTML = topMoments.map(e => {
+      const meta = ISSUE_META[e.issue]||{icon:'💡'};
+      return `<div class="moment-card sev-${e.severity}">
+        <div class="moment-text">${meta.icon} ${escHtml(e.message)}</div>
+        <div class="moment-meta">${e.ts} · ${e.severity} severity</div>
+      </div>`;
+    }).join('') || '<div style="color:var(--text-muted);font-size:0.8rem;font-style:italic">No issues flagged — great session!</div>';
 
-    // Reset score
-    const sr = $('scoreRing'); const sn = $('scoreNum');
-    sn.textContent = '…'; sr.className = 'score-ring';
-    $('coachInsights').innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;font-style:italic">Loading coach insights…</div>';
-
-    summaryOverlay.classList.remove('hidden');
+    // Score ring
+    const sn = $('scoreNum');
+    const ring = $('scoreRing');
+    ring.className = 'score-ring';
 
     const key = apiKeyInput.value.trim();
-    if (key && wc >= 10) {
+    if (key && wc > 10) {
+      $('coachInsights').innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;font-style:italic">Analyzing your session…</div>';
       try {
         const result = await fetchSummaryInsights(key, wc, wpm);
         sn.textContent = result.score;
-        if      (result.score >= 8) sr.className = 'score-ring';
-        else if (result.score >= 5) sr.className = 'score-ring score-mid';
-        else                         sr.className = 'score-ring score-low';
-
+        if (result.score >= 7) ring.className = 'score-ring';
+        else if (result.score >= 5) ring.className = 'score-ring score-mid';
+        else ring.className = 'score-ring score-low';
         $('coachInsights').innerHTML = `
           <div class="insight-card strength">
-            <div class="insight-label">✓ Strength</div>
+            <div class="insight-label">💪 Strength</div>
             <div class="insight-text">${escHtml(result.strength)}</div>
           </div>
           <div class="insight-card improve">
-            <div class="insight-label">↑ Improve</div>
+            <div class="insight-label">📈 Improve</div>
             <div class="insight-text">${escHtml(result.improve1)}</div>
           </div>
           <div class="insight-card improve">
-            <div class="insight-label">↑ Improve</div>
+            <div class="insight-label">📈 Improve</div>
             <div class="insight-text">${escHtml(result.improve2)}</div>
           </div>
           <div class="insight-card tip">
@@ -1664,7 +1962,7 @@ Give 1 strength, 2 improvement areas, 1 actionable tip, and a score 1-10.`
   /* ─────────────────────────────────────────
      EVENT LISTENERS
   ───────────────────────────────────────── */
-  startBtn.addEventListener('click', promptSessionStart);
+  startBtn.addEventListener('click', () => promptSessionStart());
   stopBtn.addEventListener('click', stopSession);
   clearBtn.addEventListener('click', clearSession);
 
@@ -1685,7 +1983,6 @@ Give 1 strength, 2 improvement areas, 1 actionable tip, and a score 1-10.`
     }, 400);
   });
 
-  // Topic modal buttons
   $('confirmTopicBtn').addEventListener('click', () => startSession(topicInput.value));
   $('skipTopicBtn').addEventListener('click', () => startSession(''));
   topicInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); startSession(topicInput.value); }});
@@ -1693,7 +1990,6 @@ Give 1 strength, 2 improvement areas, 1 actionable tip, and a score 1-10.`
   summaryCloseBtn.addEventListener('click', clearSession);
   summaryOverlay.addEventListener('click', e => { if (e.target === summaryOverlay) summaryOverlay.classList.add('hidden'); });
 
-  // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if (document.activeElement === apiKeyInput || document.activeElement === topicInput) return;
     if (e.code === 'Space') { e.preventDefault(); if (isRecording) stopSession(); else promptSessionStart(); }
