@@ -94,6 +94,10 @@
     .btn-ghost:hover:not(:disabled){border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.04)}
     .btn-danger-ghost{background:transparent;color:var(--high);border:1px solid rgba(240,96,96,0.25)}
     .btn-danger-ghost:hover:not(:disabled){background:var(--high-bg);border-color:var(--high-border)}
+    .btn-pause{background:transparent;color:var(--text-dim);border:1px solid var(--border)}
+    .btn-pause:hover:not(:disabled){border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.04)}
+    .btn-pause.paused{background:rgba(240,208,96,0.1);color:var(--low);border-color:var(--low-border);animation:pausedPulse 2s ease-in-out infinite}
+    @keyframes pausedPulse{0%,100%{opacity:1}50%{opacity:0.65}}
     .btn-small{padding:6px 10px;font-size:0.72rem;border-radius:7px;width:auto}
     .btn:disabled{opacity:0.3;cursor:not-allowed;pointer-events:none}
 
@@ -430,6 +434,10 @@
             <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="12" height="12" rx="2"/></svg>
             Stop &amp; Summarize
           </button>
+          <button class="btn btn-pause" id="pauseBtn" disabled>
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="4" height="12" rx="1"/><rect x="9" y="2" width="4" height="12" rx="1"/></svg>
+            <span id="pauseBtnLabel">Mute Others</span>
+          </button>
           <div style="display:flex;gap:6px">
             <button class="btn btn-danger-ghost" id="clearBtn" style="flex:1">Clear</button>
             <button class="btn btn-ghost btn-small" id="retryMicBtn" style="flex:1" title="Retry microphone">↺ Retry Mic</button>
@@ -731,6 +739,7 @@
      STATE
   ───────────────────────────────────────── */
   let isRecording        = false;
+  let isPaused           = false;
   let recognitionActive  = false;
   let restartTimerId     = null;
   let recognition        = null;
@@ -799,6 +808,8 @@
   const stopBtn             = $('stopBtn');
   const clearBtn            = $('clearBtn');
   const retryMicBtn         = $('retryMicBtn');
+  const pauseBtn            = $('pauseBtn');
+  const pauseBtnLabel       = $('pauseBtnLabel');
   const micBtn              = $('micBtn');
   const micLabel            = $('micLabel');
   const modeHintText        = $('modeHintText');
@@ -1385,7 +1396,7 @@
   function onEnd() {
     recognitionActive = false;
     clearTimeout(restartTimerId);
-    if (!isRecording) return;
+    if (!isRecording || isPaused) return;
 
     consecutiveRestarts++;
     if (consecutiveRestarts >= 5) {
@@ -1690,11 +1701,51 @@ Format: {"issue":"repetition"|"rambling"|"filler_words"|"off_topic"|"none","mess
     document.body.classList.toggle('is-recording', on);
     startBtn.disabled = on;
     stopBtn.disabled  = !on;
-    micBtn.classList.toggle('active', on);
+    pauseBtn.disabled = !on;
+    if (!on) {
+      isPaused = false;
+      pauseBtn.classList.remove('paused');
+      pauseBtnLabel.textContent = 'Mute Others';
+    }
+    micBtn.classList.toggle('active', on && !isPaused);
     micBtn.classList.toggle('idle-glow', !on);
     statusText.textContent = on ? 'Recording' : 'Ready';
     micLabel.textContent   = on ? 'Recording — click to stop' : 'Click to start';
     document.querySelectorAll('.mode-btn').forEach(b => b.style.pointerEvents = on ? 'none' : '');
+  }
+
+  function togglePause() {
+    if (!isRecording) return;
+    isPaused = !isPaused;
+
+    if (isPaused) {
+      // Stop recognition so their words aren't captured
+      recognitionActive = false;
+      clearTimeout(restartTimerId);
+      clearTimeout(pauseTimerId);
+      try { recognition.stop(); } catch(_) {}
+      interimTranscriptEl.textContent = '';
+      pauseBtn.classList.add('paused');
+      pauseBtnLabel.textContent = 'Resume My Mic';
+      micBtn.classList.remove('active');
+      updateRecPill('Muted');
+      logEvent('⏸ Mic muted — others speaking', 'info');
+      document.body.classList.remove('is-recording');
+    } else {
+      // Resume recognition
+      pauseBtn.classList.remove('paused');
+      pauseBtnLabel.textContent = 'Mute Others';
+      micBtn.classList.add('active');
+      updateRecPill('Listening');
+      logEvent('▶ Mic resumed', 'info');
+      document.body.classList.add('is-recording');
+      try {
+        recognition.start();
+        recognitionActive = true;
+      } catch(err) {
+        logEvent(`✗ Resume failed: ${err.message}`, 'warn');
+      }
+    }
   }
 
   /* ─────────────────────────────────────────
@@ -1777,6 +1828,7 @@ Format: {"issue":"repetition"|"rambling"|"filler_words"|"off_topic"|"none","mess
     }
 
     fullTranscript = ''; latestChunk = ''; microChunk = '';
+    isPaused = false;
     sessionTopic = ''; sessionStartMs = 0; sessionElapsedSec = 0;
     repetitionCount = 0; totalFillerCount = 0;
     isAnalyzing = false; lastAnalysisMs = 0;
@@ -1971,6 +2023,8 @@ Give 1 strength, 2 improvement areas, 1 actionable tip, and a score 1-10.`
     else promptSessionStart();
   });
 
+  pauseBtn.addEventListener('click', togglePause);
+
   retryMicBtn.addEventListener('click', () => {
     if (!isRecording) return;
     logEvent('Manual mic retry…', 'info');
@@ -1995,6 +2049,7 @@ Give 1 strength, 2 improvement areas, 1 actionable tip, and a score 1-10.`
     if (e.code === 'Space') { e.preventDefault(); if (isRecording) stopSession(); else promptSessionStart(); }
     if (e.code === 'Escape') { summaryOverlay.classList.add('hidden'); sessionStartOverlay.classList.add('hidden'); }
     if (e.code === 'KeyC' && !isRecording) clearSession();
+    if (e.code === 'KeyP' && isRecording) togglePause();
   });
 
   </script>
